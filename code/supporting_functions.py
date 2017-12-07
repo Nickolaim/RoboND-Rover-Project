@@ -4,6 +4,7 @@ from PIL import Image
 from io import BytesIO, StringIO
 import base64
 import time
+from code.rover_state import RoverState
 
 
 # Define a function to convert telemetry strings to float independent of decimal convention
@@ -127,6 +128,9 @@ def create_output_images(Rover):
         fidelity = round(100 * good_nav_pix / (tot_nav_pix), 1)
     else:
         fidelity = 0
+
+    draw_rover(Rover, map_add)
+
     # Flip the map for plotting so that the y-axis points upward in the display
     map_add = np.flipud(map_add).astype(np.float32)
     # Add some text about map and rock sample detection results
@@ -154,3 +158,18 @@ def create_output_images(Rover):
     encoded_string2 = base64.b64encode(buff.getvalue()).decode("utf-8")
 
     return encoded_string1, encoded_string2
+
+
+def draw_rover(rover, image):
+    """
+    Draw the rover on the image
+    :param RoverState rover: the rover
+    :param np.ndarray image: the image
+    :return:
+    """
+    # Mark the rover
+    rover_half_size = 2
+    rover_x, rover_y = int(rover.pos[0]), int(rover.pos[1])
+    image[rover_y-rover_half_size: rover_y+rover_half_size, rover_x-rover_half_size: rover_x+rover_half_size, 0] = 255
+    image[rover_y-rover_half_size: rover_y+rover_half_size, rover_x-rover_half_size: rover_x+rover_half_size, 1] = 0
+    image[rover_y-rover_half_size: rover_y+rover_half_size, rover_x-rover_half_size: rover_x+rover_half_size, 2] = 255

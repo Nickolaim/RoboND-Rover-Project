@@ -4,6 +4,7 @@ from PIL import Image
 from io import BytesIO, StringIO
 import base64
 import time
+import matplotlib.image as mpimg
 from code.rover_state import RoverState
 
 
@@ -69,6 +70,12 @@ def update_rover(Rover, data):
 
 # Define a function to create display output given worldmap results
 def create_output_images(Rover):
+    """
+    Creates output images
+    :param RoverState Rover:
+    :return:
+    """
+    Rover.image_generation_counter += 1
     # Create a scaled map for plotting and clean up obs/nav pixels a bit
     if np.max(Rover.worldmap[:, :, 2]) > 0:
         nav_pix = Rover.worldmap[:, :, 2] > 0
@@ -115,9 +122,11 @@ def create_output_images(Rover):
     # First get the total number of pixels in the navigable terrain map
     tot_nav_pix = np.float(len((plotmap[:, :, 2].nonzero()[0])))
     # Next figure out how many of those correspond to ground truth pixels
-    good_nav_pix = np.float(len(((plotmap[:, :, 2] > 0) & (Rover.ground_truth[:, :, 1] > 0)).nonzero()[0]))
+    good_nav_pixels_bool = (plotmap[:, :, 2] > 0) & (Rover.ground_truth[:, :, 1] > 0)
+    good_nav_pix = np.float(len(good_nav_pixels_bool.nonzero()[0]))
     # Next find how many do not correspond to ground truth pixels
-    bad_nav_pix = np.float(len(((plotmap[:, :, 2] > 0) & (Rover.ground_truth[:, :, 1] == 0)).nonzero()[0]))
+    bad_nav_pixels_bool = ((plotmap[:, :, 2] > 0) & (Rover.ground_truth[:, :, 1] == 0))
+    bad_nav_pix = np.float(len(bad_nav_pixels_bool.nonzero()[0]))
     # Grab the total number of map pixels
     tot_map_pix = np.float(len((Rover.ground_truth[:, :, 1].nonzero()[0])))
     # Calculate the percentage of ground truth map that has been successfully found
@@ -146,15 +155,24 @@ def create_output_images(Rover):
                 cv2.FONT_HERSHEY_COMPLEX, 0.4, (255, 255, 255), 1)
     cv2.putText(map_add, "  Collected: " + str(Rover.samples_collected), (0, 85),
                 cv2.FONT_HERSHEY_COMPLEX, 0.4, (255, 255, 255), 1)
+    # Save the fidelity map
+    if Rover.image_generation_counter % 250:
+        fidelity_map = np.zeros_like(map_add)
+        fidelity_map[:, :, 0][bad_nav_pixels_bool] = 255
+        fidelity_map[:, :, 1][good_nav_pixels_bool] = 255
+        fidelity_map[:, :, 2][good_nav_pixels_bool & bad_nav_pixels_bool] = 255
+        fidelity_map_img = Image.fromarray(fidelity_map.astype(np.uint8))
+        mpimg.imsave("../output/fidelity_render.png", fidelity_map_img)
+
     # Convert map and vision image to base64 strings for sending to server
     pil_img = Image.fromarray(map_add.astype(np.uint8))
     buff = BytesIO()
-    pil_img.save(buff, format="JPEG")
+    pil_img.save(buff, format="PNG")
     encoded_string1 = base64.b64encode(buff.getvalue()).decode("utf-8")
 
     pil_img = Image.fromarray((Rover.vision_image * 255).astype(np.uint8))
     buff = BytesIO()
-    pil_img.save(buff, format="JPEG")
+    pil_img.save(buff, format="PNG")
     encoded_string2 = base64.b64encode(buff.getvalue()).decode("utf-8")
 
     return encoded_string1, encoded_string2

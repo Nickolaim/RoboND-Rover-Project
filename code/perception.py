@@ -5,17 +5,16 @@ from code.rover_state import RoverState
 
 def color_thresh(img, rgb_thresh_lower=(160, 160, 160), rgb_thresh_upper=(255, 255, 255)):
     """
-    Identify pixels with the specified threshold
-    Threshold of RGB > 160 does a nice job of identifying ground pixels only
+    Identify pixels with the specified thresholds
     :param img: Input image in RGB
     :param rgb_thresh_lower: tuple R,G,B for lower bound
     :param rgb_thresh_upper: tuple R,G,B for upper bound
     :return: image with 1, with the current selection (>lower and <=upper)
     """
     color_select = np.zeros_like(img[:, :, 0])
-    above_thresh_lower = (img[:, :, 0] > rgb_thresh_lower[0]) \
-                         & (img[:, :, 1] > rgb_thresh_lower[1]) \
-                         & (img[:, :, 2] > rgb_thresh_lower[2])
+    above_thresh_lower = (img[:, :, 0] >= rgb_thresh_lower[0]) \
+                         & (img[:, :, 1] >= rgb_thresh_lower[1]) \
+                         & (img[:, :, 2] >= rgb_thresh_lower[2])
 
     above_thresh_upper = (img[:, :, 0] <= rgb_thresh_upper[0]) \
                          & (img[:, :, 1] <= rgb_thresh_upper[1]) \
@@ -86,6 +85,11 @@ def perspect_transform(img, src, dst):
     
     return warped
 
+def clip_selection(selection):
+    selection[0:80, ] = 0
+    selection[:, 0:40] = 0
+    selection[:, -40:selection.shape[1]] = 0
+    return selection
 
 # Apply the above functions in succession and update the Rover state accordingly
 def perception_step(Rover):
@@ -100,7 +104,7 @@ def perception_step(Rover):
     image = Rover.img
 
     # 1) Define source and destination points for perspective transform
-    source = np.float32([[14, 140], [301, 140], [200, 96], [118, 96]])
+    source = np.float32([[10, 140], [301, 140], [200, 96], [118, 96]])
     dest_half_size = 5
     dest_size = dest_half_size * 2
     dest_center_x = image.shape[1] / 2
@@ -115,18 +119,18 @@ def perception_step(Rover):
 
     # 3) Apply color threshold to identify navigable terrain/obstacles/rock samples
     navigable_selection = color_thresh(warped, rgb_thresh_lower=(160, 160, 160))
-    navigable_selection[0:80, ] = 0
-    sand_selection = color_thresh(warped, rgb_thresh_lower=(0, 0, 0), rgb_thresh_upper=(160, 160, 160))
-    sand_selection[0:80, ] = 0
+    navigable_selection = clip_selection(navigable_selection)
+    obstacle_selection = color_thresh(warped, rgb_thresh_lower=(0, 0, 0), rgb_thresh_upper=(160, 160, 160))
+    obstacle_selection = clip_selection(obstacle_selection)
     rock_selection = color_thresh(warped, rgb_thresh_lower=(100, 0, 0), rgb_thresh_upper=(180, 180, 70))
 
     # 4) Update Rover.vision_image (this will be displayed on left side of screen)
-    Rover.vision_image[:, :, 0] = sand_selection
+    Rover.vision_image[:, :, 0] = obstacle_selection
     Rover.vision_image[:, :, 1] = rock_selection
     Rover.vision_image[:, :, 2] = navigable_selection
 
     # 5) Convert map image pixel values to rover-centric coords
-    obstacle_xpix, obstacle_ypix = rover_coords(sand_selection)
+    obstacle_xpix, obstacle_ypix = rover_coords(obstacle_selection)
     rock_xpix, rock_ypix = rover_coords(rock_selection)
     navigable_xpix, navigable_ypix = rover_coords(navigable_selection)
 
@@ -134,7 +138,7 @@ def perception_step(Rover):
     rover_xpos = Rover.pos[0]
     rover_ypos = Rover.pos[1]
     rover_yaw = Rover.yaw
-    scale = 10   # ???
+    scale = 10
     world_size = Rover.worldmap.shape[0]
     obstacle_x_world, obstacle_y_world = pix_to_world(obstacle_xpix, obstacle_ypix, rover_xpos,
                                                       rover_ypos, rover_yaw,

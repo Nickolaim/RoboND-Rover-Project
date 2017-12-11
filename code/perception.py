@@ -87,8 +87,8 @@ def perspect_transform(img, src, dst):
 
 def clip_selection(selection):
     selection[0:80, ] = 0
-    selection[:, 0:40] = 0
-    selection[:, -40:selection.shape[1]] = 0
+    selection[:, 0:60] = 0
+    selection[:, -60:selection.shape[1]] = 0
     return selection
 
 # Apply the above functions in succession and update the Rover state accordingly
@@ -158,8 +158,7 @@ def perception_step(Rover):
     # 8) Convert rover-centric pixel positions to polar coordinates
     # Update Rover pixel distances and angles
     Rover.nav_dists, Rover.nav_angles = to_polar_coords(navigable_xpix, navigable_ypix)
-    
- 
-    
+
+
     
     return Rover

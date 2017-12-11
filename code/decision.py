@@ -9,6 +9,29 @@ def decision_step(Rover):
     # Here you're all set up with some basic functionality but you'll need to
     # improve on this decision tree to do a good job of navigating autonomously!
 
+    # Record position every second, for detecting when the rover is stuck
+    current_second = int(Rover.total_time)
+    array_index = current_second % Rover.pos_every_second.shape[0]
+    Rover.pos_every_second[array_index, 0] = Rover.pos[0]
+    Rover.pos_every_second[array_index, 1] = Rover.pos[1]
+    Rover.pos_every_second[array_index, 2] = Rover.steer
+    tolerance = 0.05
+    is_stuck = (abs(Rover.pos_every_second[:, 0] - Rover.pos[0]) < tolerance).all() and \
+        (abs(Rover.pos_every_second[:, 1] - Rover.pos[1]) < tolerance).all()
+    if is_stuck:
+        print("STUCK, trying to get rolling")
+        Rover.throttle = 0
+        Rover.brake = 0
+        Rover.steer = -15
+        Rover.pos_every_second[array_index, 0] = -1  # Prevent being in the same condition after the turn
+        Rover.mode = 'stop'
+        return Rover
+    is_around_steering = (Rover.pos_every_second[:, 2] == 15).all() or (Rover.pos_every_second[:, 2] == -15).all()
+    if is_around_steering:
+        print("Going in rounds, break it")
+        Rover.steer = np.random.random_integers(-10, 10)
+        return Rover
+
     # Example:
     # Check if we have vision data to make decisions with
     if Rover.nav_angles is not None:

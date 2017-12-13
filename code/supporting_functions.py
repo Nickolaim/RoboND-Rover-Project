@@ -126,6 +126,7 @@ def create_output_images(Rover):
                             (Rover.active_sample_search_ignore_until is None or Rover.active_sample_search_ignore_until < Rover.total_time):
                         print("Adding SAMPLE")
                         Rover.active_sample_start_time = Rover.total_time
+                        Rover.active_sample_search_started = True
 
     # Calculate some statistics on the map results
     # First get the total number of pixels in the navigable terrain map

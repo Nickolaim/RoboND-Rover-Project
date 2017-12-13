@@ -55,9 +55,10 @@ class RoverState():
         self.active_sample_start_time = None
         self.active_sample_distance = None
         self.active_sample_angle = None
-        self.sample_search_timeout = 30
-        self.active_sample_search_cooldown = 45
+        self.sample_search_timeout = 50
+        self.active_sample_search_cooldown = 30
         self.active_sample_search_ignore_until = None
+        self.active_sample_search_started = False
         self.picked_up_sample_position = []
         self.near_sample = 0 # Will be set to telemetry value data["near_sample"]
         self.picking_up = 0 # Will be set to telemetry value data["picking_up"]

@@ -37,6 +37,15 @@ def decision_step(Rover):
         Rover.steer = np.random.random_integers(-10, 10)
         return Rover
 
+    if Rover.active_sample_search_started:
+        print("Saw sample. Break.")
+        Rover.throttle = 0
+        Rover.brake = Rover.brake_set
+        Rover.steer = 0
+        if Rover.active_sample_start_time + 4 < Rover.total_time:
+            Rover.active_sample_search_started = False
+        return Rover
+
     if Rover.active_sample_position is not None and Rover.active_sample_start_time is not None:
         if Rover.active_sample_start_time + Rover.sample_search_timeout < Rover.total_time:
             # Giving up for this sample for now
@@ -56,10 +65,13 @@ def decision_step(Rover):
             Rover.yaw, active_sample_angle_degree, Rover.steer
         ))
 
-        Rover.throttle = Rover.throttle_set * min(1, Rover.active_sample_distance)
+        if Rover.vel < .2:
+            Rover.throttle = Rover.throttle_set
+        else:
+            Rover.throttle = 0
         if np.abs(Rover.yaw - active_sample_angle_degree) > 140:
             Rover.throttle *= -1
-        Rover.brake = max(1 - Rover.active_sample_distance, 0)
+        Rover.brake = max(.5 - Rover.active_sample_distance, 0)
 
         if Rover.near_sample and Rover.vel == 0 and not Rover.picking_up:
             Rover.send_pickup = True

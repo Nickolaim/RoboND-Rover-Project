@@ -201,5 +201,5 @@ def draw_rover(rover, image):
     rover_half_size = 2
     rover_x, rover_y = int(rover.pos[0]), int(rover.pos[1])
     image[rover_y-rover_half_size: rover_y+rover_half_size, rover_x-rover_half_size: rover_x+rover_half_size, 0] = 255
-    image[rover_y-rover_half_size: rover_y+rover_half_size, rover_x-rover_half_size: rover_x+rover_half_size, 1] = 0
-    image[rover_y-rover_half_size: rover_y+rover_half_size, rover_x-rover_half_size: rover_x+rover_half_size, 2] = 255
+    image[rover_y-rover_half_size: rover_y+rover_half_size, rover_x-rover_half_size: rover_x+rover_half_size, 1] = 255
+    image[rover_y-rover_half_size: rover_y+rover_half_size, rover_x-rover_half_size: rover_x+rover_half_size, 2] = 0

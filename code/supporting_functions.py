@@ -120,7 +120,9 @@ def create_output_images(Rover):
 
                 distance_to_rover = np.sqrt((test_rock_x - Rover.pos[0]) ** 2 +
                                             (test_rock_y - Rover.pos[1]) ** 2)
-                if distance_to_rover < 10 and (test_rock_x, test_rock_y) not in Rover.picked_up_sample_position:
+                distances_to_picked_up_samples = [np.sqrt((test_rock_x - px) ** 2 + (test_rock_y - py) ** 2) for px, py in Rover.picked_up_sample_position]
+                min_distance_to_picked_up = 999 if len(distances_to_picked_up_samples) == 0 else sorted(distances_to_picked_up_samples)[0]
+                if distance_to_rover < 10 and min_distance_to_picked_up > 3:
                     Rover.active_sample_position = (test_rock_x, test_rock_y)
                     if Rover.active_sample_start_time is None and \
                             (Rover.active_sample_search_ignore_until is None or Rover.active_sample_search_ignore_until < Rover.total_time):

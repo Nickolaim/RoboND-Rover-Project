@@ -142,6 +142,11 @@ def decision_step(Rover):
     # If in a state where want to pickup a rock send pickup command
     if Rover.near_sample and Rover.vel == 0 and not Rover.picking_up:
         Rover.send_pickup = True
-    
+        Rover.mode = "stop"
+        if Rover.active_sample_position is not None:
+            Rover.picked_up_sample_position.append(Rover.active_sample_position)
+        Rover.active_sample_position = None
+        Rover.active_sample_start_time = None
+
     return Rover
 

@@ -17,7 +17,7 @@ class RoverState():
         self.total_time = None # To record total duration of navigation
         self.img = None # Current camera image
         self.pos = None # Current position (x, y)
-        self.seconds_for_being_stuck = 4  # How many seconds at the same place for considering that the rover is stuck
+        self.seconds_for_being_stuck = 7  # How many seconds at the same place for considering that the rover is stuck
         self.pos_every_second = np.full((self.seconds_for_being_stuck, 3), -1, dtype=float)  # Position every second % size
         self.yaw = None # Current yaw angle
         self.pitch = None # Current pitch angle
@@ -51,6 +51,14 @@ class RoverState():
         self.samples_to_find = 0 # To store the initial count of samples
         self.samples_located = 0 # To store number of samples located on map
         self.samples_collected = 0 # To count the number of samples collected
+        self.active_sample_position = None
+        self.active_sample_start_time = None
+        self.active_sample_distance = None
+        self.active_sample_angle = None
+        self.sample_search_timeout = 30
+        self.active_sample_search_cooldown = 45
+        self.active_sample_search_ignore_until = None
+        self.picked_up_sample_position = []
         self.near_sample = 0 # Will be set to telemetry value data["near_sample"]
         self.picking_up = 0 # Will be set to telemetry value data["picking_up"]
         self.send_pickup = False # Set to True to trigger rock pickup

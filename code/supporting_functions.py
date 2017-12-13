@@ -118,6 +118,15 @@ def create_output_images(Rover):
                 map_add[test_rock_y - rock_size:test_rock_y + rock_size,
                 test_rock_x - rock_size:test_rock_x + rock_size, :] = 255
 
+                distance_to_rover = np.sqrt((test_rock_x - Rover.pos[0]) ** 2 +
+                                            (test_rock_y - Rover.pos[1]) ** 2)
+                if distance_to_rover < 10 and (test_rock_x, test_rock_y) not in Rover.picked_up_sample_position:
+                    Rover.active_sample_position = (test_rock_x, test_rock_y)
+                    if Rover.active_sample_start_time is None and \
+                            (Rover.active_sample_search_ignore_until is None or Rover.active_sample_search_ignore_until < Rover.total_time):
+                        print("Adding SAMPLE")
+                        Rover.active_sample_start_time = Rover.total_time
+
     # Calculate some statistics on the map results
     # First get the total number of pixels in the navigable terrain map
     tot_nav_pix = np.float(len((plotmap[:, :, 2].nonzero()[0])))

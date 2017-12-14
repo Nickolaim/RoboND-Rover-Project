@@ -159,7 +159,7 @@ def perception_step(Rover):
     # Update Rover pixel distances and angles
     Rover.nav_dists, Rover.nav_angles = to_polar_coords(navigable_xpix, navigable_ypix)
 
-    # Determine if there is a sample nearby
+    # 9) Determine if there is a sample nearby
     if Rover.active_sample_position:
         Rover.active_sample_distance, Rover.active_sample_angle = to_polar_coords(Rover.active_sample_position[0] - Rover.pos[0],
                                                                                   Rover.active_sample_position[1] - Rover.pos[1])

@@ -163,14 +163,5 @@ def perception_step(Rover):
     if Rover.active_sample_position:
         Rover.active_sample_distance, Rover.active_sample_angle = to_polar_coords(Rover.active_sample_position[0] - Rover.pos[0],
                                                                                   Rover.active_sample_position[1] - Rover.pos[1])
-    def pa(value):
-        if value is None:
-            return ""
-        else:
-            return value * 180 / np.pi
 
-    print("Nav_distance {}, nav angle {}, Rover position {}: Sample position: {} sample_distance {}, sample_angle {}".format(
-        np.mean(Rover.nav_dists), pa(np.mean(Rover.nav_angles)), Rover.pos, Rover.active_sample_position, Rover.active_sample_distance, pa(Rover.active_sample_angle)
-    ))
-    
     return Rover

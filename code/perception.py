@@ -1,7 +1,7 @@
 import numpy as np
 import cv2
 
-from code.rover_state import RoverState
+from rover_state import RoverState
 
 def color_thresh(img, rgb_thresh_lower=(160, 160, 160), rgb_thresh_upper=(255, 255, 255)):
     """

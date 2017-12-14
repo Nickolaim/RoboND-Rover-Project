@@ -16,7 +16,7 @@ from decision import decision_step
 from supporting_functions import update_rover, create_output_images
 # Initialize socketio server and Flask application 
 # (learn more at: https://python-socketio.readthedocs.io/en/latest/)
-from code.rover_state import RoverState
+from rover_state import RoverState
 
 sio = socketio.Server()
 app = Flask(__name__)

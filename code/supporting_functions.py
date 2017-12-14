@@ -5,7 +5,7 @@ from io import BytesIO, StringIO
 import base64
 import time
 import matplotlib.image as mpimg
-from code.rover_state import RoverState
+from rover_state import RoverState
 
 
 # Define a function to convert telemetry strings to float independent of decimal convention
